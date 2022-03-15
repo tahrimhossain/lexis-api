@@ -54,15 +54,45 @@ class Categories(Resource):
 					if score['Category_Id'] == category['Category_Id']:
 						category["Best_Score"] = score["Score"]
 						break
+			categories.pop("_id")			
 			return categories
 						
 		except Exception as e:
 			abort(400,message = "Invalid uid")
 
 
+class UpdateScore(Resource):
+	
+	def post(self,categoryId,uid,score):
+		
+		try:
+			user = auth.get_user(uid)
+			if database.playerbest.find_one_and_update({'_id':uid,'Best_Scores':{"$elemMatch":{"Category_Id":categoryId,'Score':{"$lt" : score}}}},{"$set":{"Best_Scores.$.Score": score }}) != None:
+				if database.highscores.find_one_and_update({'_id':categoryId,'Top_Scorers':{"$elemMatch":{"User_Id":uid}}},{"$set":{"Top_Scorers.$.Score":score}}) != None:
+					database.highscores.find_one_and_update({ '_id': categoryId },{'$push': {'Top_Scorers': {'$each': [],'$sort': { 'Score': -1 }}}})
+				else:
+					database.highscores.find_one_and_update({ '_id': categoryId },{'$push': {'Top_Scorers': {'$each': [{"User_Id":uid,"Name":user.display_name,"Score":score}],'$sort': { 'Score': -1 },'$slice': 3}}})
+
+		except Exception as e:
+			abort(400,message = "Invalid uid")
+
+class HighScore(Resource):
+	
+	def get(self,categoryId):
+
+		data = database.highscores.find_one({'_id':categoryId})
+		if data != None:
+			data.pop("_id")
+			return data
+		else:
+			abort(404,message = "Data not found")	
+
+
 
 api.add_resource(Words,"/words/<string:numberOfLetters>/<int:numberOfWords>")
 api.add_resource(Categories,"/categories/<string:uid>")
+api.add_resource(UpdateScore,"/updatescore/<string:categoryId>/<string:uid>/<int:score>")
+api.add_resource(HighScore,"highscore/<string:categoryId>")
 
 if __name__ == "__main__": 
 	app.run()	
