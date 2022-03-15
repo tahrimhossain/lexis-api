@@ -21,7 +21,7 @@ client = MongoClient(mongoURL)
 database = client["lexisDatabse"]
 
 
-firebase_admin.initialize_app(credentials.Certificate(json.loads(os.environ.get('FIREBASE'))))
+#firebase_admin.initialize_app(credentials.Certificate(json.loads(os.environ.get('FIREBASE'))))
 
 class Words(Resource):
 	
@@ -64,7 +64,7 @@ class Categories(Resource):
 class UpdateScore(Resource):
 	
 	def post(self,categoryId,uid,score):
-		
+
 		try:
 			user = auth.get_user(uid)
 			if database.playerbest.find_one_and_update({'_id':uid,'Best_Scores':{"$elemMatch":{"Category_Id":categoryId,'Score':{"$lt" : score}}}},{"$set":{"Best_Scores.$.Score": score }}) != None:
@@ -92,7 +92,7 @@ class HighScore(Resource):
 api.add_resource(Words,"/words/<string:numberOfLetters>/<int:numberOfWords>")
 api.add_resource(Categories,"/categories/<string:uid>")
 api.add_resource(UpdateScore,"/updatescore/<string:categoryId>/<string:uid>/<int:score>")
-api.add_resource(HighScore,"highscore/<string:categoryId>")
+api.add_resource(HighScore,"/highscore/<string:categoryId>")
 
 if __name__ == "__main__": 
 	app.run()	
