@@ -21,7 +21,7 @@ client = MongoClient(mongoURL)
 database = client["lexisDatabse"]
 
 
-#firebase_admin.initialize_app(credentials.Certificate(json.loads(os.environ.get('FIREBASE'))))
+firebase_admin.initialize_app(credentials.Certificate(json.loads(os.environ.get('FIREBASE'))))
 
 class Words(Resource):
 	
