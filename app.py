@@ -71,7 +71,7 @@ class UpdateScore(Resource):
 				if database.highscores.find_one_and_update({'_id':categoryId,'Top_Scorers':{"$elemMatch":{"User_Id":uid}}},{"$set":{"Top_Scorers.$.Score":score}}) != None:
 					database.highscores.find_one_and_update({ '_id': categoryId },{'$push': {'Top_Scorers': {'$each': [],'$sort': { 'Score': -1 }}}})
 				else:
-					database.highscores.find_one_and_update({ '_id': categoryId },{'$push': {'Top_Scorers': {'$each': [{"User_Id":uid,"Name":user.display_name,"Score":score}],'$sort': { 'Score': -1 },'$slice': 3}}})
+					database.highscores.find_one_and_update({ '_id': categoryId },{'$push': {'Top_Scorers': {'$each': [{"User_Id":uid,"Name":user.display_name,"Score":score}],'$sort': { 'Score': -1 },'$slice': 10}}})
 
 		except Exception as e:
 			abort(400,message = "Invalid uid")
